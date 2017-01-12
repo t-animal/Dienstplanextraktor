@@ -7,6 +7,12 @@ import sys
 
 _months = ("Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember")
 _weekdays = ("Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag")
+_translationMatrix = {
+	"0": "Frei ",
+	"U": "Urlaub ",
+	"F": "Frühschicht ",
+	"S": "Spätschicht "
+}
 
 def extractRawInfo(pdfFilename):
 	try:
@@ -31,12 +37,19 @@ def extractRawInfo(pdfFilename):
 
 	return _months.index(month) + 1, int(year), rawText
 
-def extractShifts(pdfFilename):
+def extractShifts(pdfFilename, translate=False):
 	month, year, lines = extractRawInfo(pdfFilename)
 
 	shifts = {}
 	curWorkerName = ""
 	curShifts = []
+
+	def translateShiftName(origShiftName):
+		for length in range(1, len(origShiftName)+1):
+			if origShiftName[:length] in _translationMatrix:
+				return _translationMatrix[origShiftName[:length]] + origShiftName[length:]
+
+		return origShiftName
 
 	for line in lines:
 		if line == "":
@@ -44,6 +57,8 @@ def extractShifts(pdfFilename):
 				break
 
 			if curWorkerName != "":
+				if translate:
+					curShifts = map(translateShiftName, curShifts)
 				shifts[curWorkerName.strip(" ")] = curShifts
 
 			curWorkerName = ""
@@ -69,11 +84,12 @@ def main():
 	commandGroup.add_argument("--workerInfo", "-w", metavar='W', type=str,
 		help="Zeige Info zu Mitarbeiter W")
 	parser.add_argument("--latex", action="store_true", help="Gib Latex code aus (nur -w)")
+	parser.add_argument("--translate", action="store_true", help="Übersetze Abkürzungen (nur -w)")
 	parser.add_argument("filename", help="Pfad zum Schichtplan PDF")
 
 
 	args = parser.parse_args()
-	month, year, shifts = extractShifts(args.filename)
+	month, year, shifts = extractShifts(args.filename, args.translate)
 
 	if args.listWorkers:
 		print("\n".join(shifts.keys()))
