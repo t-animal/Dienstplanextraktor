@@ -4,6 +4,7 @@
 import re
 import subprocess
 import sys
+import os
 
 _months = ("Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember")
 _weekdays = ("Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag")
@@ -11,12 +12,14 @@ _translationMatrix = {
 	"0": "Frei ",
 	"U": "Urlaub ",
 	"F": "Frühschicht ",
-	"S": "Spätschicht "
+	"S": "Spätschicht ",
+	"N": "Nachtschicht "
 }
 
 def extractRawInfo(pdfFilename):
 	try:
-		rawText = subprocess.check_output(["pdftotext", "-layout", "-nopgbrk", pdfFilename, "-"])
+		curDir = os.path.dirname(os.path.abspath(__file__))
+		rawText = subprocess.check_output([curDir + "/dependencies/pdftotext", "-layout", "-nopgbrk", pdfFilename, "-"])
 	except subprocess.CalledProcessError as e:
 		if e.returncode == 1:
 			print("There was an error opening the PDF file.")
