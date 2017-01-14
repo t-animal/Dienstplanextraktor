@@ -78,6 +78,7 @@ def main():
 
 	import argparse
 	from datetime import date
+	from calendarConnection import insertEvent
 
 	parser = argparse.ArgumentParser(description='Extrahiere Schichtplaninfo')
 	commandGroup = parser.add_mutually_exclusive_group()
@@ -88,6 +89,7 @@ def main():
 		help="Zeige Info zu Mitarbeiter W")
 	parser.add_argument("--latex", action="store_true", help="Gib Latex code aus (nur -w)")
 	parser.add_argument("--translate", action="store_true", help="Übersetze Abkürzungen (nur -w)")
+	parser.add_argument("--calendar", action="store_true", help="Speichere in Google Calendar (nur -w)")
 	parser.add_argument("filename", help="Pfad zum Schichtplan PDF")
 
 
@@ -99,6 +101,7 @@ def main():
 
 	if args.workerInfo:
 		if args.workerInfo in shifts:
+			daysShifts = list(enumerate(shifts[args.workerInfo], 1))
 			if args.latex:
 				print("""\documentclass{{article}}
 						\\usepackage[utf8]{{inputenc}}
@@ -107,7 +110,7 @@ def main():
 						\\date{{}}
 						\maketitle""".format(args.workerInfo, _months[month-1], year))
 				print("\\begin{tabular}{rl}")
-				for day, shift in enumerate(shifts[args.workerInfo], 1):
+				for day, shift in daysShifts:
 					weekday = date(year, month, day).weekday()
 					if weekday in [5, 6]:
 						print("\\textbf{", end="")
@@ -123,7 +126,15 @@ def main():
 				print("\\end{tabular}\\end{document}")
 			else:
 				print("Schichtplan für {} für {} {}".format(args.workerInfo, _months[month-1], year))
-				print("\n".join(map(lambda x: _weekdays[date(year, month, x[0]).weekday()][0:3] + " " + (": ".join(map(str, x))), enumerate(shifts[args.workerInfo], 1))))
+				print("\n".join(map(lambda x: _weekdays[date(year, month, x[0]).weekday()][0:3] + " " + (": ".join(map(str, x))), daysShifts)))
+
+
+			if args.calendar:
+				for day, shift in daysShifts:
+					print("Adding to google calendar... Event no {}".format(day), end="\r")
+					insertEvent(year, month, day, shift)
+				print("\nDone")
+
 		else:
 			print("Mitarbeiter unbekannt (nutze -l!)")
 
