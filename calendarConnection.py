@@ -102,3 +102,4 @@ def insertEvent(year, month, day, name, calendar="Dienstplan"):
 
     event = service.events().insert(calendarId=calendar_id, body=event).execute()
 
+    return event

@@ -6,6 +6,9 @@ import subprocess
 import sys
 import os
 
+from calendarConnection import insertEvent
+from datetime import date
+
 _months = ("Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember")
 _weekdays = ("Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag")
 _translationMatrix = {
@@ -16,69 +19,114 @@ _translationMatrix = {
 	"N": "Nachtschicht "
 }
 
-def extractRawInfo(pdfFilename):
-	try:
-		curDir = os.path.dirname(os.path.abspath(__file__))
-		rawText = subprocess.check_output([curDir + "/dependencies/pdftotext", "-layout", "-nopgbrk", pdfFilename, "-"])
-	except subprocess.CalledProcessError as e:
-		if e.returncode == 1:
-			print("There was an error opening the PDF file.")
-		elif e.returncode == 3:
-			print("There was an error related to PDF permissions.")
-		else:
-			print("An unknown error occured.")
-		sys.exit(1)
+class Dienstplan:
 
-	rawText = str(rawText, encoding='UTF-8')
+	def __init__(self, pdfFilename, translate=False):
+		self.pdfFilename = pdfFilename
+		self.month, self.year, self.shifts = self._extractShifts(translate)
 
-	dateInfo = re.search(r"(Januar|Februar|März|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember) +([0-9]{4})", rawText).group()
-	dateInfo = dateInfo.split(" ")
-	month = dateInfo[0]
-	year = dateInfo[-1]
+	def _extractRawInfo(self):
+		try:
+			curDir = os.path.dirname(os.path.abspath(__file__))
+			rawText = subprocess.check_output([curDir + "/dependencies/pdftotext", "-layout", "-nopgbrk", self.pdfFilename, "-"])
+		except subprocess.CalledProcessError as e:
+			if e.returncode == 1:
+				print("There was an error opening the PDF file.")
+			elif e.returncode == 3:
+				print("There was an error related to PDF permissions.")
+			else:
+				print("An unknown error occured.")
+			sys.exit(1)
 
-	rawText = [ "" if year in line else line for line in rawText.split("\n") ]
+		rawText = str(rawText, encoding='UTF-8')
 
-	return _months.index(month) + 1, int(year), rawText
+		dateInfo = re.search(r"(Januar|Februar|März|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember) +([0-9]{4})", rawText).group()
+		dateInfo = dateInfo.split(" ")
+		month = dateInfo[0]
+		year = dateInfo[-1]
 
-def extractShifts(pdfFilename, translate=False):
-	month, year, lines = extractRawInfo(pdfFilename)
+		rawText = [ "" if year in line else line for line in rawText.split("\n") ]
 
-	shifts = {}
-	curWorkerName = ""
-	curShifts = []
+		return _months.index(month) + 1, int(year), rawText
 
-	def translateShiftName(origShiftName):
-		for length in range(1, len(origShiftName)+1):
-			if origShiftName[:length] in _translationMatrix:
-				return _translationMatrix[origShiftName[:length]] + origShiftName[length:]
+	def _extractShifts(self, translate=False):
+		month, year, lines = self._extractRawInfo()
 
-		return origShiftName
+		shifts = {}
+		curWorkerName = ""
+		curShifts = []
 
-	for line in lines:
-		if line == "":
-			if curWorkerName.strip(" ") in shifts:
-				break
+		def translateShiftName(origShiftName):
+			for length in range(1, len(origShiftName)+1):
+				if origShiftName[:length] in _translationMatrix:
+					return _translationMatrix[origShiftName[:length]] + origShiftName[length:]
 
-			if curWorkerName != "":
-				if translate:
-					curShifts = map(translateShiftName, curShifts)
-				shifts[curWorkerName.strip(" ")] = curShifts
+			return origShiftName
 
-			curWorkerName = ""
-			curShifts = []
-			continue
+		for line in lines:
+			if line == "":
+				if curWorkerName.strip(" ") in shifts:
+					break
 
-		tokens = [token for token in line.split(" ") if token != ""]
-		curWorkerName = tokens[0] + " " + curWorkerName
-		curShifts = tokens[1:]
+				if curWorkerName != "":
+					if translate:
+						curShifts = map(translateShiftName, curShifts)
+					shifts[curWorkerName.strip(" ")] = curShifts
 
-	return month, year, shifts
+				curWorkerName = ""
+				curShifts = []
+				continue
+
+			tokens = [token for token in line.split(" ") if token != ""]
+			curWorkerName = tokens[0] + " " + curWorkerName
+			curShifts = tokens[1:]
+
+		return month, year, shifts
+
+	def getText(self, name):
+		daysShifts = enumerate(self.shifts[name], 1)
+		return "Schichtplan für {} für {} {}\n".format(name, _months[self.month - 1], self.year) + \
+				"\n".join(map(lambda x: _weekdays[date(self.year, self.month, x[0]).weekday()][0:3]
+											+ " " + (": ".join(map(str, x))), daysShifts))
+
+	def getLatex(self, name):
+		if name not in self.shifts:
+			raise KeyError()
+
+		daysShifts = enumerate(self.shifts[name], 1)
+		result = """\documentclass{{article}}
+						\\usepackage[utf8]{{inputenc}}
+						\\begin{{document}}
+						\\title{{Schichtplan für {} für {} {} }}
+						\\date{{}}
+						\maketitle\n""".format(name, _months[self.month - 1], self.year)
+		result += "\\begin{tabular}{rl}\n"
+
+		for day, shift in daysShifts:
+			weekday = date(self.year, self.month, day).weekday()
+			if weekday in [5, 6]:
+				result += "\\textbf{"
+
+			result += "{}, {}".format(_weekdays[weekday], day)
+
+			if weekday in [5, 6]:
+				result += "}"
+
+			result += "& {}\n".format(shift)
+
+			result += "\\\\\n"
+		result += "\\end{tabular}\\end{document}"
+
+		return result
+
+	def addToCalendar(self, name):
+		daysShifts = enumerate(self.shifts[name], 1)
+		for day, shift in daysShifts:
+			yield insertEvent(self.year, self.month, day, shift)
 
 def main():
 
 	import argparse
-	from datetime import date
-	from calendarConnection import insertEvent
 
 	parser = argparse.ArgumentParser(description='Extrahiere Schichtplaninfo')
 	commandGroup = parser.add_mutually_exclusive_group()
@@ -94,46 +142,23 @@ def main():
 
 
 	args = parser.parse_args()
-	month, year, shifts = extractShifts(args.filename, args.translate)
+	plan = Dienstplan(args.filename, args.translate)
 
 	if args.listWorkers:
-		print("\n".join(shifts.keys()))
+		print("\n".join(plan.shifts.keys()))
 
 	if args.workerInfo:
-		if args.workerInfo in shifts:
-			daysShifts = list(enumerate(shifts[args.workerInfo], 1))
+		if args.workerInfo in plan.shifts:
 			if args.latex:
-				print("""\documentclass{{article}}
-						\\usepackage[utf8]{{inputenc}}
-						\\begin{{document}}
-						\\title{{Schichtplan für {} für {} {} }}
-						\\date{{}}
-						\maketitle""".format(args.workerInfo, _months[month-1], year))
-				print("\\begin{tabular}{rl}")
-				for day, shift in daysShifts:
-					weekday = date(year, month, day).weekday()
-					if weekday in [5, 6]:
-						print("\\textbf{", end="")
-
-					print("{}, {}".format(_weekdays[weekday], day), end="")
-
-					if weekday in [5, 6]:
-						print("}", end="")
-
-					print("& {}".format(shift))
-
-					print("\\\\")
-				print("\\end{tabular}\\end{document}")
+				print(plan.getLatex(args.workerInfo))
 			else:
-				print("Schichtplan für {} für {} {}".format(args.workerInfo, _months[month-1], year))
-				print("\n".join(map(lambda x: _weekdays[date(year, month, x[0]).weekday()][0:3] + " " + (": ".join(map(str, x))), daysShifts)))
-
+				print(plan.getText(args.workerInfo))
 
 			if args.calendar:
-				for day, shift in daysShifts:
+				for day, event in enumerate(plan.addToCalendar(args.workerInfo), 1):
 					print("Adding to google calendar... Event no {}".format(day), end="\r")
-					insertEvent(year, month, day, shift)
-				print("\nDone")
+
+				print("Done")
 
 		else:
 			print("Mitarbeiter unbekannt (nutze -l!)")
