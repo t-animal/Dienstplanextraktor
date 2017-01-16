@@ -22,9 +22,9 @@ _translationMatrix = {
 
 class Dienstplan:
 
-	def __init__(self, pdfFilename, translate=False):
+	def __init__(self, pdfFilename):
 		self.pdfFilename = pdfFilename
-		self.month, self.year, self.shifts = self._extractShifts(translate)
+		self.month, self.year, self.shifts = self._extractShifts()
 
 	def _extractRawInfo(self):
 		try:
@@ -49,19 +49,12 @@ class Dienstplan:
 
 		return _months.index(month) + 1, int(year), rawText
 
-	def _extractShifts(self, translate=False):
+	def _extractShifts(self):
 		month, year, lines = self._extractRawInfo()
 
 		shifts = {}
 		curWorkerName = ""
 		curShifts = []
-
-		def translateShiftName(origShiftName):
-			for length in range(1, len(origShiftName)+1):
-				if origShiftName[:length] in _translationMatrix:
-					return _translationMatrix[origShiftName[:length]] + origShiftName[length:]
-
-			return origShiftName
 
 		for line in lines:
 			if line == "":
@@ -69,8 +62,6 @@ class Dienstplan:
 					break
 
 				if curWorkerName != "":
-					if translate:
-						curShifts = map(translateShiftName, curShifts)
 					shifts[curWorkerName.strip(" ")] = curShifts
 
 				curWorkerName = ""
@@ -83,17 +74,34 @@ class Dienstplan:
 
 		return month, year, shifts
 
-	def getText(self, name):
-		daysShifts = enumerate(self.shifts[name], 1)
+
+	def _translateShiftName(self, origShiftName):
+		for length in range(1, len(origShiftName)+1):
+			if origShiftName[:length] in _translationMatrix:
+				return _translationMatrix[origShiftName[:length]] + origShiftName[length:]
+
+		return origShiftName
+
+	def getText(self, name, translate=False):
+		if name not in self.shifts:
+			raise KeyError()
+
+		if translate:
+			daysShifts = enumerate(map(self._translateShiftName, self.shifts[name]), 1)
+		else:
+			daysShifts = enumerate(self.shifts[name], 1)
 		return "Schichtplan für {} für {} {}\n".format(name, _months[self.month - 1], self.year) + \
 				"\n".join(map(lambda x: _weekdays[date(self.year, self.month, x[0]).weekday()][0:3]
 											+ " " + (": ".join(map(str, x))), daysShifts))
 
-	def getLatex(self, name):
+	def getLatex(self, name, translate=False):
 		if name not in self.shifts:
 			raise KeyError()
 
-		daysShifts = enumerate(self.shifts[name], 1)
+		if translate:
+			daysShifts = enumerate(map(self._translateShiftName, self.shifts[name]), 1)
+		else:
+			daysShifts = enumerate(self.shifts[name], 1)
 		result = """\documentclass{{article}}
 						\\usepackage[utf8]{{inputenc}}
 						\\begin{{document}}
@@ -119,8 +127,24 @@ class Dienstplan:
 
 		return result
 
-	def addToCalendar(self, name):
-		daysShifts = enumerate(self.shifts[name], 1)
+	def getShifts(self, name, translate=False):
+		if name not in self.shifts:
+			raise KeyError()
+
+		if translate:
+			return list(map(self._translateShiftName, self.shifts[name]))
+		else:
+			return self.shifts[name]
+
+
+	def addToCalendar(self, name, translate=False):
+		if name not in self.shifts:
+			raise KeyError()
+
+		if translate:
+			daysShifts = enumerate(map(self._translateShiftName, self.shifts[name]), 1)
+		else:
+			daysShifts = enumerate(self.shifts[name], 1)
 		for day, shift in daysShifts:
 			yield insertEvent(self.year, self.month, day, shift)
 
@@ -142,7 +166,7 @@ def main():
 
 
 	args = parser.parse_args()
-	plan = Dienstplan(args.filename, args.translate)
+	plan = Dienstplan(args.filename)
 
 	if args.listWorkers:
 		print("\n".join(plan.shifts.keys()))
