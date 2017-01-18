@@ -103,7 +103,11 @@ class Application(Frame):
 		self.dienstplan = None
 
 if __name__ == "__main__":
+	if sys.platform.lower().startswith('win') and  getattr(sys, 'frozen', False):
+		from util import hideConsole
+		hideConsole()
 	root = Tk()
 	app = Application(master=root)
 	app.mainloop()
+	sys.exit(0)
 	# root.destroy()
