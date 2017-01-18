@@ -27,7 +27,7 @@ if sys.platform.startswith("linux"):
 elif sys.platform.startswith("win"):
     _PDFTOTEXT = which("pdftotext.exe")
     if _PDFTOTEXT is None:
-        _PDFTOTEXT = _curDir + "/dependencies/texlive/win32/pdftotext.exe"
+        _PDFTOTEXT = _curDir + "/dependencies/texlive/bin/win32/pdftotext.exe"
 else:
     _PDFTOTEXT = which("pdftotext")
     if _PDFTOTEXT is None:
@@ -42,7 +42,7 @@ if sys.platform.startswith("linux"):
 elif sys.platform.startswith("win"):
     _PDFLATEX = which("pdflatex.exe")
     if _PDFLATEX is None:
-        _PDFLATEX = _curDir + "/dependencies/texlive/win32/pdflatex.exe"
+        _PDFLATEX = _curDir + "/dependencies/texlive/bin/win32/pdflatex.exe"
 else:
     _PDFLATEX = which("pdflatex")
     if _PDFLATEX is None:
