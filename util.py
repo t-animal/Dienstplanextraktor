@@ -23,11 +23,11 @@ _curDir = os.path.dirname(os.path.abspath(__file__))
 if sys.platform.startswith("linux"):
     _PDFTOTEXT = which("pdftotext")
     if _PDFTOTEXT is None:
-        _PDFTOTEXT = curDir + "/dependencies/pdftotext"
+        _PDFTOTEXT = _curDir + "/dependencies/pdftotext"
 elif sys.platform.startswith("win"):
     _PDFTOTEXT = which("pdftotext.exe")
     if _PDFTOTEXT is None:
-        _PDFTOTEXT = curDir + "/dependencies/texlive/win32/pdftotext.exe"
+        _PDFTOTEXT = _curDir + "/dependencies/texlive/win32/pdftotext.exe"
 else:
     _PDFTOTEXT = which("pdftotext")
     if _PDFTOTEXT is None:
@@ -38,11 +38,11 @@ else:
 if sys.platform.startswith("linux"):
     _PDFLATEX = which("pdflatex")
     if _PDFLATEX is None:
-        _PDFLATEX = curDir + "/dependencies/pdflatex"
+        _PDFLATEX = _curDir + "/dependencies/pdflatex"
 elif sys.platform.startswith("win"):
     _PDFLATEX = which("pdflatex.exe")
     if _PDFLATEX is None:
-        _PDFLATEX = curDir + "/dependencies/texlive/win32/pdflatex.exe"
+        _PDFLATEX = _curDir + "/dependencies/texlive/win32/pdflatex.exe"
 else:
     _PDFLATEX = which("pdflatex")
     if _PDFLATEX is None:
