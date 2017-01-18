@@ -102,6 +102,7 @@ class Application(Frame):
 		Frame.__init__(self, master)
 		self.pack()
 		self.createWidgets()
+		self.master.title("Dienstplanextraktor")
 
 		self.selectedName = None
 		self.dienstplan = None
