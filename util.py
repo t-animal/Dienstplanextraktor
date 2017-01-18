@@ -59,3 +59,11 @@ elif sys.platform.startswith("win"):
 else:
     print("Your platform is not supported (no idea where to put the config). Sorry.")
     sys.exit(1)
+
+
+if sys.platform.startswith("linux"):
+    _LAYOUT_PARAM = "-layout"
+elif sys.platform.startswith("win"):
+    _LAYOUT_PARAM = "-table"
+else:
+    _LAYOUT_PARAM = "-layout"

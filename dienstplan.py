@@ -8,7 +8,7 @@ import os
 
 from calendarConnection import insertEvent
 from datetime import date
-from util import _PDFTOTEXT
+from util import _PDFTOTEXT, _LAYOUT_PARAM
 
 _months = ("Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember")
 _weekdays = ("Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag")
@@ -28,7 +28,7 @@ class Dienstplan:
 
 	def _extractRawInfo(self):
 		try:
-			rawText = subprocess.check_output([_PDFTOTEXT, "-layout", "-nopgbrk", self.pdfFilename, "-"])
+			rawText = subprocess.check_output([_PDFTOTEXT, _LAYOUT_PARAM, "-nopgbrk", self.pdfFilename, "-"], universal_newlines=True)
 		except subprocess.CalledProcessError as e:
 			if e.returncode == 1:
 				print("There was an error opening the PDF file.")
