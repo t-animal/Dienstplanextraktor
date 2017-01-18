@@ -38,14 +38,12 @@ class Dienstplan:
 				print("An unknown error occured.")
 			sys.exit(1)
 
-		rawText = str(rawText, encoding='UTF-8')
-
 		dateInfo = re.search(r"(Januar|Februar|März|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember) +([0-9]{4})", rawText).group()
 		dateInfo = dateInfo.split(" ")
 		month = dateInfo[0]
 		year = dateInfo[-1]
 
-		rawText = [ "" if year in line else line for line in rawText.split("\n") ]
+		rawText = list(filter(lambda x: x != "" and year not in x, rawText.split("\n")))
 
 		return _months.index(month) + 1, int(year), rawText
 
@@ -56,8 +54,8 @@ class Dienstplan:
 		curWorkerName = ""
 		curShifts = []
 
-		for line in lines:
-			if line == "":
+		for lineno, line in enumerate(lines):
+			if lineno % 2 == 0:
 				if curWorkerName.strip(" ") in shifts:
 					break
 
@@ -66,7 +64,6 @@ class Dienstplan:
 
 				curWorkerName = ""
 				curShifts = []
-				continue
 
 			tokens = [token for token in line.split(" ") if token != ""]
 			curWorkerName = tokens[0] + " " + curWorkerName
