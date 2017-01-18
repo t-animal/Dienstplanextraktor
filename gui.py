@@ -44,13 +44,12 @@ class Application(Frame):
 		self.nameList.delete(0, END)
 
 		if not filename == "":
-			with warnings.catch_warnings(record=True) as warningsList:
-				self.dienstplan = Dienstplan(filename)
-				self.nameList.insert(END, *sorted(self.dienstplan.shifts.keys()))
+			self.openFile(filename)
 
-				for warning in warningsList:
-					messagebox.showwarning(warning.category.__name__,  warning.category.__name__ + ": " + str(warning.message))
-
+	def openFile(self, filename):
+		with warnings.catch_warnings(record=True) as warningsList:
+			self.dienstplan = Dienstplan(filename)
+			self.nameList.insert(END, *sorted(self.dienstplan.shifts.keys()))
 
 			for warning in warningsList:
 				messagebox.showwarning(warning.category.__name__,  warning.category.__name__ + ": " + str(warning.message))
@@ -108,6 +107,10 @@ if __name__ == "__main__":
 		hideConsole()
 	root = Tk()
 	app = Application(master=root)
+
+	if len(sys.argv) > 1:
+		app.openFile(sys.argv[1])
+
 	app.mainloop()
 	sys.exit(0)
 	# root.destroy()
