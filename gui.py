@@ -3,9 +3,11 @@
 
 import os
 import subprocess
+import warnings
 
 from tkinter import *
 import tkinter.filedialog as filedialog
+from tkinter import messagebox
 
 from datetime import date
 from dienstplan import Dienstplan
@@ -42,8 +44,16 @@ class Application(Frame):
 		self.nameList.delete(0, END)
 
 		if not filename == "":
-			self.dienstplan = Dienstplan(filename)
-			self.nameList.insert(END, *self.dienstplan.shifts.keys())
+			with warnings.catch_warnings(record=True) as warningsList:
+				self.dienstplan = Dienstplan(filename)
+				self.nameList.insert(END, *self.dienstplan.shifts.keys())
+
+				for warning in warningsList:
+					messagebox.showwarning(warning.category.__name__,  warning.category.__name__ + ": " + str(warning.message))
+
+
+			for warning in warningsList:
+				messagebox.showwarning(warning.category.__name__,  warning.category.__name__ + ": " + str(warning.message))
 
 	def selectName(self, event):
 		w = event.widget

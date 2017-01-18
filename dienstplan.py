@@ -7,6 +7,7 @@ import sys
 import os
 
 from calendarConnection import insertEvent
+from calendar import monthrange
 from datetime import date
 from util import _PDFTOTEXT, _LAYOUT_PARAM
 
@@ -19,6 +20,10 @@ _translationMatrix = {
 	"S": "Spätschicht ",
 	"N": "Nachtschicht "
 }
+
+class PlausibilityError(RuntimeWarning):
+
+	pass
 
 class Dienstplan:
 
@@ -50,6 +55,8 @@ class Dienstplan:
 	def _extractShifts(self):
 		month, year, lines = self._extractRawInfo()
 
+		expectedDays = monthrange(year, month)[1]
+
 		shifts = {}
 		curWorkerName = ""
 		curShifts = []
@@ -62,8 +69,15 @@ class Dienstplan:
 				if curWorkerName != "":
 					shifts[curWorkerName.strip(" ")] = curShifts
 
+					if len(curShifts) != expectedDays:
+						import warnings
+						warnings.warn("Number of shifts ({}) of {} does not match number of days ({}) in month ({})!".
+										format(len(curShifts), curWorkerName, expectedDays, month),
+										PlausibilityError)
+
 				curWorkerName = ""
 				curShifts = []
+
 
 			tokens = [token for token in line.split(" ") if token != ""]
 			curWorkerName = tokens[0] + " " + curWorkerName
