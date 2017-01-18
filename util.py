@@ -50,7 +50,6 @@ else:
         sys.exit(1)
 
 
-
 if sys.platform.startswith("linux"):
     home_dir = os.path.expanduser('~')
     _CREDENTIAL_DIR = os.path.join(home_dir, '.config/dienstplanextraktor/')
@@ -90,3 +89,26 @@ if sys.platform.startswith('win'):
         whnd = ctypes.windll.kernel32.GetConsoleWindow()
         if whnd != 0:
             ctypes.windll.user32.ShowWindow(whnd, 1)
+
+
+if sys.platform.startswith("win"):
+    import win32api
+    import win32print
+
+    def printing(filename, printer = None):
+        win32api.ShellExecute(0, "print", filename,
+                                '/d:"%s"' % win32print.GetDefaultPrinter() if printer is None else printer, ".", 0)
+elif sys.platform.startswith("linux"):
+    import subprocess
+
+    def printing(filename, printer = None):
+        lpr = subprocess.Popen(["lpr"] + (["-P" + printer] if printer else []), stdin=subprocess.PIPE)
+        with open(filename, "rb") as file:
+            tmp = file.read(1024)
+            while len(tmp) > 0:
+                lpr.stdin.write(tmp)
+                tmp = file.read(1024)
+            lpr.stdin.close()
+else:
+    print("Your platform is not supported (no idea how to print). Sorry.")
+    sys.exit(1)

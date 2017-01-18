@@ -11,16 +11,22 @@ from tkinter import messagebox
 
 from datetime import date
 from dienstplan import Dienstplan
-from util import _PDFLATEX
+from util import _PDFLATEX, printing
 
 class Application(Frame):
 	def createPDF(self):
+		if self.pdfCreated:
+			printing("Dienstplan-{}-{}.pdf".format(self.dienstplan.year, self.dienstplan.month))
+
 		if self.dienstplan and self.selectedName:
 			latex = self.dienstplan.getLatex(self.selectedName, self.translateVar.get() == 1)
 
 			curDir = os.path.dirname(os.path.abspath(__file__))
 			pdflatex = subprocess.Popen([_PDFLATEX, "-jobname=Dienstplan-"+ str(self.dienstplan.year) + "-" + str(self.dienstplan.month), "--"], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 			(stdout, stderr) = pdflatex.communicate(latex.encode('utf8'))
+
+			self.pdfCreated = True
+			self.pdfButton.config(text="Print (default printer)")
 
 
 	def exportToCalendar(self):
@@ -40,6 +46,7 @@ class Application(Frame):
 
 		self.selectedName = None
 		self.dienstplan = None
+		self.pdfCreated = False
 		self.resultText.delete(1.0, END)
 		self.nameList.delete(0, END)
 
@@ -66,6 +73,9 @@ class Application(Frame):
 
 			self.resultText.delete(1.0, END)
 			self.resultText.insert(END, self.dienstplan.getText(self.selectedName, self.translateVar.get() == 1))
+
+			self.pdfCreated = False
+			self.pdfButton.config(text="Create PDF")
 
 	def createWidgets(self):
 		self.translateVar = IntVar()
@@ -106,6 +116,7 @@ class Application(Frame):
 
 		self.selectedName = None
 		self.dienstplan = None
+		self.pdfCreated = False
 
 if __name__ == "__main__":
 	if sys.platform.lower().startswith('win') and  getattr(sys, 'frozen', False):
