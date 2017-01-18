@@ -56,11 +56,16 @@ class Application(Frame):
 
 	def selectName(self, event):
 		w = event.widget
-		index = int(w.curselection()[0])
-		self.selectedName = w.get(index)
+		if w == self.nameList:
+			self.updateResults()
 
-		self.resultText.delete(1.0, END)
-		self.resultText.insert(END, self.dienstplan.getText(self.selectedName, self.translateVar.get() == 1))
+	def updateResults(self):
+		if self.nameList.curselection():
+			index = int(self.nameList.curselection()[0])
+			self.selectedName = self.nameList.get(index)
+
+			self.resultText.delete(1.0, END)
+			self.resultText.insert(END, self.dienstplan.getText(self.selectedName, self.translateVar.get() == 1))
 
 	def createWidgets(self):
 		self.translateVar = IntVar()
@@ -72,7 +77,7 @@ class Application(Frame):
 		self.filenameLabel = Label(filenameFrame, textvariable=self.filenameVar, wraplength=250)
 
 		self.openButton = Button(filenameFrame, text="Open File", command=self.selectFile)
-		self.translateButton = Checkbutton(actionsFrame, text="Translate", var=self.translateVar)
+		self.translateButton = Checkbutton(actionsFrame, text="Translate", var=self.translateVar, command=self.updateResults)
 		self.pdfButton = Button(actionsFrame, text="Create PDF", command=self.createPDF)
 		self.calendarButton = Button(actionsFrame, text="Export to calendar", command=self.exportToCalendar)
 
