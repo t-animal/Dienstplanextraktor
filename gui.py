@@ -46,7 +46,7 @@ class Application(Frame):
 		if not filename == "":
 			with warnings.catch_warnings(record=True) as warningsList:
 				self.dienstplan = Dienstplan(filename)
-				self.nameList.insert(END, *self.dienstplan.shifts.keys())
+				self.nameList.insert(END, *sorted(self.dienstplan.shifts.keys()))
 
 				for warning in warningsList:
 					messagebox.showwarning(warning.category.__name__,  warning.category.__name__ + ": " + str(warning.message))
