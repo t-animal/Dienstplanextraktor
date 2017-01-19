@@ -108,6 +108,9 @@ class Application(Frame):
 		config["translate"] = self.translateVar.get() == 1
 		config["lastSelectedName"] = self.selectedName
 
+		if not os.path.exists(_CONFIG_DIR):
+			os.makedirs(_CONFIG_DIR)
+
 		with open(_CONFIG_DIR + "/config.json", "w") as configFile:
 			json.dump(config, configFile)
 
