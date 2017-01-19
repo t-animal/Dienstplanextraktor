@@ -13,7 +13,7 @@ from tkinter import messagebox
 
 from datetime import date
 from dienstplan import Dienstplan
-from util import _PDFLATEX, _CONFIG_DIR, printing
+from util import _PDFLATEX, _CONFIG_DIR, printing, setupLocalization
 
 class Application(Frame):
 	def createPDF(self):
@@ -163,9 +163,7 @@ if __name__ == "__main__":
 		from util import hideConsole
 		hideConsole()
 
-	import locale
-	locale.setlocale(locale.LC_ALL, "")
-	gettext.install("rosterextractor", "lang")
+	setupLocalization()
 
 	root = Tk()
 	app = Application(master=root)

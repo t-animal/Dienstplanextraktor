@@ -11,7 +11,7 @@ import os
 from calendarConnection import insertEvent
 from calendar import monthrange
 from datetime import date
-from util import _PDFTOTEXT, _LAYOUT_PARAM
+from util import _PDFTOTEXT, _LAYOUT_PARAM, setupLocalization
 
 def translateAble_(string):return string
 _german_months = ("Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember")
@@ -211,6 +211,5 @@ def main():
 
 if __name__ == "__main__":
 	import locale
-	locale.setlocale(locale.LC_ALL, "")
-	gettext.install("rosterextractor", "lang")
+	setupLocalization()
 	main()

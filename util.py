@@ -1,5 +1,9 @@
 import os, sys
 
+"""
+This module contains some utilities to smooth over incompatablities between linux and windows
+"""
+
 def which(program):
     import os
     def is_exe(fpath):
@@ -18,8 +22,11 @@ def which(program):
 
     return None
 
-
 _curDir = os.path.dirname(os.path.abspath(__file__))
+
+"""
+Creates a variable pointing to an executable version of pdftotext
+"""
 if sys.platform.startswith("linux"):
     _PDFTOTEXT = which("pdftotext")
     if _PDFTOTEXT is None:
@@ -35,6 +42,9 @@ else:
         sys.exit(1)
 
 
+"""
+Creates a variable pointing to an executable version of pdflatex
+"""
 if sys.platform.startswith("linux"):
     _PDFLATEX = which("pdflatex")
     if _PDFLATEX is None:
@@ -50,6 +60,9 @@ else:
         sys.exit(1)
 
 
+"""
+Creates a variable pointing to a place where config data can be stored
+"""
 if sys.platform.startswith("linux"):
     home_dir = os.path.expanduser('~')
     _CONFIG_DIR = os.path.join(home_dir, '.config/dienstplanextraktor/')
@@ -60,6 +73,9 @@ else:
     sys.exit(1)
 
 
+"""
+Creates a variable specifying the parameter to tell pdftotext to stick to the pdf's layout
+"""
 if sys.platform.startswith("linux"):
     _LAYOUT_PARAM = "-layout"
 elif sys.platform.startswith("win"):
@@ -68,6 +84,9 @@ else:
     _LAYOUT_PARAM = "-layout"
 
 
+"""
+Creates a function allowing to hide the console window (windows only)
+"""
 if sys.platform.startswith('win'):
     import ctypes
 
@@ -91,6 +110,9 @@ if sys.platform.startswith('win'):
             ctypes.windll.user32.ShowWindow(whnd, 1)
 
 
+"""
+Creates a function allowing printing
+"""
 if sys.platform.startswith("win"):
     import win32api
     import win32print
@@ -112,3 +134,21 @@ elif sys.platform.startswith("linux"):
 else:
     print(_("Your platform is not supported (no idea how to print). Sorry."))
     sys.exit(1)
+
+
+"""
+Creates a function which sets up the locale and localization
+"""
+if sys.platform.startswith("win"):
+	import locale, gettext
+
+	def setupLocalization():
+		lang, enc = locale.getdefaultlocale()
+		os.environ['LANG'] = lang
+		gettext.install("rosterextractor", _curDir + "/lang")
+
+elif sys.platform.startswith("linux"):
+	import locale, gettext
+
+	def setupLocalization():
+		gettext.install("rosterextractor", _curDir + "/lang")
