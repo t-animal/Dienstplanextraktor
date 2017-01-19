@@ -113,28 +113,35 @@ class Dienstplan:
 			daysShifts = enumerate(map(self._translateShiftName, self.shifts[name]), 1)
 		else:
 			daysShifts = enumerate(self.shifts[name], 1)
-		result = """\documentclass{{article}}
-						\\usepackage[utf8]{{inputenc}}
-						\\begin{{document}}
-						\\title{{Schichtplan für {} für {} {} }}
-						\\date{{}}
-						\maketitle\n""".format(name, _months[self.month - 1], self.year)
-		result += "\\begin{tabular}{rl}\n"
+		result = """
+\\documentclass{{article}}
+\\usepackage[table]{{xcolor}}
+\\usepackage[utf8]{{inputenc}}
+\\definecolor{{weekend}}{{rgb}}{{0.85,0.85,0.85}}
+\\begin{{document}}
+	\\title{{Schichtplan für {} für {} {} }}
+	\\date{{}}
+	\maketitle
+
+	\\begin{{table}}[h]
+		\centering
+		\\begin{{tabular}}{{ | r @{{\hspace{{1.8mm}}}} r l | }}
+			\\hline\n""".format(name, _months[self.month - 1], self.year)
 
 		for day, shift in daysShifts:
 			weekday = date(self.year, self.month, day).weekday()
+			result += "\t\t\t\t"
 			if weekday in [5, 6]:
-				result += "\\textbf{"
+				result += "\\rowcolor{{weekend}}\\textbf{{{}}},\t& \\textbf{{{}}}".format(_weekdays[weekday], day)
+			else:
+				result += "{},\t& {}".format(_weekdays[weekday], day)
 
-			result += "{}, {}".format(_weekdays[weekday], day)
-
-			if weekday in [5, 6]:
-				result += "}"
-
-			result += "& {}\n".format(shift)
-
-			result += "\\\\\n"
-		result += "\\end{tabular}\\end{document}"
+			result += "\t& {}\\\\\n".format(shift)
+		result += """
+			\\hline
+		\\end{tabular}
+	\\end{table}
+\\end{document}"""
 
 		return result
 
