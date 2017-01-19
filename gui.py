@@ -23,8 +23,11 @@ class Application(Frame):
 			latex = self.dienstplan.getLatex(self.selectedName, self.translateVar.get() == 1)
 
 			curDir = os.path.dirname(os.path.abspath(__file__))
-			pdflatex = subprocess.Popen([_PDFLATEX, "-jobname=Dienstplan-"+ str(self.dienstplan.year) + "-" + str(self.dienstplan.month), "--"], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+			jobName = "Dienstplan-"+ str(self.dienstplan.year) + "-" + str(self.dienstplan.month)
+			pdflatex = subprocess.Popen([_PDFLATEX, "-jobname="+jobName, "--"], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 			(stdout, stderr) = pdflatex.communicate(latex.encode('utf8'))
+			os.remove(jobName+".log")
+			os.remove(jobName+".aux")
 
 			self.pdfCreated = True
 			self.pdfButton.config(text="Print (default printer)")
