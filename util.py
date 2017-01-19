@@ -52,9 +52,9 @@ else:
 
 if sys.platform.startswith("linux"):
     home_dir = os.path.expanduser('~')
-    _CREDENTIAL_DIR = os.path.join(home_dir, '.config/dienstplanextraktor/')
+    _CONFIG_DIR = os.path.join(home_dir, '.config/dienstplanextraktor/')
 elif sys.platform.startswith("win"):
-    _CREDENTIAL_DIR = os.path.join(os.environ['APPDATA'], 'dienstplanextraktor')
+    _CONFIG_DIR = os.path.join(os.environ['APPDATA'], 'dienstplanextraktor')
 else:
     print("Your platform is not supported (no idea where to put the config). Sorry.")
     sys.exit(1)

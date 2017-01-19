@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
+import json
 import os
 import subprocess
 import warnings
@@ -11,7 +12,7 @@ from tkinter import messagebox
 
 from datetime import date
 from dienstplan import Dienstplan
-from util import _PDFLATEX, printing
+from util import _PDFLATEX, _CONFIG_DIR, printing
 
 class Application(Frame):
 	def createPDF(self):
@@ -44,6 +45,8 @@ class Application(Frame):
 		filename = filedialog.askopenfilename(filetypes=[("Schichtpläne", "SPX*.pdf"), ("Alle PDF Dateien", "*.pdf")])
 		self.filenameVar.set(filename)
 
+		if self.selectedName is not None:
+			self.lastSelectedName = self.selectedName
 		self.selectedName = None
 		self.dienstplan = None
 		self.pdfCreated = False
@@ -57,6 +60,10 @@ class Application(Frame):
 		with warnings.catch_warnings(record=True) as warningsList:
 			self.dienstplan = Dienstplan(filename)
 			self.nameList.insert(END, *sorted(self.dienstplan.shifts.keys()))
+
+			if self.lastSelectedName in self.dienstplan.shifts:
+				self.nameList.selection_set(sorted(self.dienstplan.shifts.keys()).index(self.lastSelectedName))
+				self.updateResults()
 
 			for warning in warningsList:
 				messagebox.showwarning(warning.category.__name__,  warning.category.__name__ + ": " + str(warning.message))
@@ -76,6 +83,31 @@ class Application(Frame):
 
 			self.pdfCreated = False
 			self.pdfButton.config(text="Create PDF")
+
+	def _loadConfig(self):
+		try:
+			with open(_CONFIG_DIR + "/config.json") as configFile:
+				config = json.load(configFile)
+		except:
+			config = {}
+
+		if "translate" in config and config["translate"]:
+			self.translateVar.set(1)
+
+		if "lastSelectedName" in config:
+			self.lastSelectedName = config["lastSelectedName"]
+
+	def _saveConfig(self):
+		config = {}
+		config["translate"] = self.translateVar.get() == 1
+		config["lastSelectedName"] = self.selectedName
+
+		with open(_CONFIG_DIR + "/config.json", "w") as configFile:
+			json.dump(config, configFile)
+
+	def onClose(self):
+		self._saveConfig()
+		self.master.destroy()
 
 	def createWidgets(self):
 		self.translateVar = IntVar()
@@ -113,10 +145,14 @@ class Application(Frame):
 		self.pack()
 		self.createWidgets()
 		self.master.title("Dienstplanextraktor")
+		self.master.protocol("WM_DELETE_WINDOW", self.onClose)
 
 		self.selectedName = None
+		self.lastSelectedName = None
 		self.dienstplan = None
 		self.pdfCreated = False
+
+		self._loadConfig()
 
 if __name__ == "__main__":
 	if sys.platform.lower().startswith('win') and  getattr(sys, 'frozen', False):

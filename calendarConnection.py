@@ -14,7 +14,7 @@ import googleapiclient
 
 import datetime
 
-from util import _CREDENTIAL_DIR
+from util import _CONFIG_DIR
 
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/calendar-python-quickstart.json
@@ -38,9 +38,9 @@ def get_credentials():
     Returns:
         Credentials, the obtained credential.
     """
-    if not os.path.exists(_CREDENTIAL_DIR):
-        os.makedirs(_CREDENTIAL_DIR)
-    credential_path = os.path.join(_CREDENTIAL_DIR, 'calendar_credentials.json')
+    if not os.path.exists(_CONFIG_DIR):
+        os.makedirs(_CONFIG_DIR)
+    credential_path = os.path.join(_CONFIG_DIR, 'calendar_credentials.json')
 
     store = Storage(credential_path)
     credentials = store.get()
