@@ -10,6 +10,7 @@ import warnings
 from tkinter import *
 import tkinter.filedialog as filedialog
 from tkinter import messagebox
+from tkinter.ttk import *
 
 from datetime import date
 from dienstplan import Dienstplan
@@ -35,15 +36,16 @@ class Application(Frame):
 
 
 	def exportToCalendar(self):
-		self.resultText.delete(1.0, END)
-
 		if self.dienstplan and self.selectedName:
+			self.progressBar.pack(fill=X, pady=5)
+			self.progressBar.configure(maximum=len(self.dienstplan.shifts), value=0)
+			self.calendarButton.pack_forget()
 			for day, event in enumerate(self.dienstplan.addToCalendar(self.selectedName, self.translateVar.get() == 1), 1):
-				self.resultText.delete(1.0, END)
-				self.resultText.insert(END, _("Adding to google calendar... Event no {}\n").format(day))
+				self.progressBar.step()
 				self.update_idletasks()
 
-			self.resultText.insert(END, _("Done"))
+			self.progressBar.pack_forget()
+			self.calendarButton.pack()
 
 	def selectFile(self):
 		filename = filedialog.askopenfilename(filetypes=[(_("Rosters"), "SPX*.pdf"), (_("All PDF files"), "*.pdf")])
@@ -117,6 +119,7 @@ class Application(Frame):
 		self.translateVar = IntVar()
 		filenameFrame = Frame(self)
 		actionsFrame = Frame(self)
+		calendarFrame = Frame(actionsFrame)
 
 		self.filenameVar= StringVar()
 		self.filenameVar.set(_("No file selected"))
@@ -125,17 +128,22 @@ class Application(Frame):
 		self.openButton = Button(filenameFrame, text=_("Open File"), command=self.selectFile)
 		self.translateButton = Checkbutton(actionsFrame, text=_("Translate"), var=self.translateVar, command=self.updateResults)
 		self.pdfButton = Button(actionsFrame, text=_("Create PDF"), command=self.createPDF)
-		self.calendarButton = Button(actionsFrame, text=_("Export to calendar"), command=self.exportToCalendar)
+		self.calendarButton = Button(calendarFrame, text=_("Export to calendar"), command=self.exportToCalendar)
+		self.progressBar = Progressbar(calendarFrame, maximum=30)
 
 		self.nameList = Listbox(self, width=30, height=39)
 		self.resultText = Text(self, width=40, height=40)
 		self.nameList.bind('<<ListboxSelect>>', self.selectName)
 
 		self.pdfButton.pack(fill=X)
-		self.calendarButton.pack(fill=X)
+		self.calendarButton.pack(fill=X, pady=1)
+		self.progressBar.pack(fill=X, pady=6)
+		calendarFrame.pack()
 		self.translateButton.pack()
 		self.openButton.pack()
 		self.filenameLabel.pack()
+
+		self.progressBar.pack_forget()
 
 		filenameFrame.grid(row=0, column=0, padx=10, pady=10)
 		actionsFrame.grid(row=0, column=1, padx=10, pady=10)
