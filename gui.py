@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
+import gettext
 import json
 import os
 import subprocess
@@ -16,21 +17,21 @@ from util import _PDFLATEX, _CONFIG_DIR, printing
 
 class Application(Frame):
 	def createPDF(self):
+		jobName = _("Roster-") + str(self.dienstplan.year) + "-" + str(self.dienstplan.month)
 		if self.pdfCreated:
-			printing("Dienstplan-{}-{}.pdf".format(self.dienstplan.year, self.dienstplan.month))
+			printing(jobName+".pdf")
 
 		if self.dienstplan and self.selectedName:
 			latex = self.dienstplan.getLatex(self.selectedName, self.translateVar.get() == 1)
 
 			curDir = os.path.dirname(os.path.abspath(__file__))
-			jobName = "Dienstplan-"+ str(self.dienstplan.year) + "-" + str(self.dienstplan.month)
 			pdflatex = subprocess.Popen([_PDFLATEX, "-jobname="+jobName, "--"], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 			(stdout, stderr) = pdflatex.communicate(latex.encode('utf8'))
 			os.remove(jobName+".log")
 			os.remove(jobName+".aux")
 
 			self.pdfCreated = True
-			self.pdfButton.config(text="Print (default printer)")
+			self.pdfButton.config(text=_("Print (default printer)"))
 
 
 	def exportToCalendar(self):
@@ -39,13 +40,13 @@ class Application(Frame):
 		if self.dienstplan and self.selectedName:
 			for day, event in enumerate(self.dienstplan.addToCalendar(self.selectedName, self.translateVar.get() == 1), 1):
 				self.resultText.delete(1.0, END)
-				self.resultText.insert(END, "Adding to google calendar... Event no {}\n".format(day))
+				self.resultText.insert(END, _("Adding to google calendar... Event no {}\n").format(day))
 				self.update_idletasks()
 
-			self.resultText.insert(END, "Done")
+			self.resultText.insert(END, _("Done"))
 
 	def selectFile(self):
-		filename = filedialog.askopenfilename(filetypes=[("Schichtpläne", "SPX*.pdf"), ("Alle PDF Dateien", "*.pdf")])
+		filename = filedialog.askopenfilename(filetypes=[(_("Rosters"), "SPX*.pdf"), (_("All PDF files"), "*.pdf")])
 		self.filenameVar.set(filename)
 
 		if self.selectedName is not None:
@@ -85,7 +86,7 @@ class Application(Frame):
 			self.resultText.insert(END, self.dienstplan.getText(self.selectedName, self.translateVar.get() == 1))
 
 			self.pdfCreated = False
-			self.pdfButton.config(text="Create PDF")
+			self.pdfButton.config(text=_("Create PDF"))
 
 	def _loadConfig(self):
 		try:
@@ -118,13 +119,13 @@ class Application(Frame):
 		actionsFrame = Frame(self)
 
 		self.filenameVar= StringVar()
-		self.filenameVar.set("No file selected")
+		self.filenameVar.set(_("No file selected"))
 		self.filenameLabel = Label(filenameFrame, textvariable=self.filenameVar, wraplength=250)
 
-		self.openButton = Button(filenameFrame, text="Open File", command=self.selectFile)
-		self.translateButton = Checkbutton(actionsFrame, text="Translate", var=self.translateVar, command=self.updateResults)
-		self.pdfButton = Button(actionsFrame, text="Create PDF", command=self.createPDF)
-		self.calendarButton = Button(actionsFrame, text="Export to calendar", command=self.exportToCalendar)
+		self.openButton = Button(filenameFrame, text=_("Open File"), command=self.selectFile)
+		self.translateButton = Checkbutton(actionsFrame, text=_("Translate"), var=self.translateVar, command=self.updateResults)
+		self.pdfButton = Button(actionsFrame, text=_("Create PDF"), command=self.createPDF)
+		self.calendarButton = Button(actionsFrame, text=_("Export to calendar"), command=self.exportToCalendar)
 
 		self.nameList = Listbox(self, width=30, height=39)
 		self.resultText = Text(self, width=40, height=40)
@@ -147,7 +148,7 @@ class Application(Frame):
 		Frame.__init__(self, master)
 		self.pack()
 		self.createWidgets()
-		self.master.title("Dienstplanextraktor")
+		self.master.title(_("Rosterextractor"))
 		self.master.protocol("WM_DELETE_WINDOW", self.onClose)
 
 		self.selectedName = None
@@ -161,6 +162,11 @@ if __name__ == "__main__":
 	if sys.platform.lower().startswith('win') and  getattr(sys, 'frozen', False):
 		from util import hideConsole
 		hideConsole()
+
+	import locale
+	locale.setlocale(locale.LC_ALL, "")
+	gettext.install("rosterextractor", "lang")
+
 	root = Tk()
 	app = Application(master=root)
 

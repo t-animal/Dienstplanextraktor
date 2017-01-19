@@ -31,7 +31,7 @@ elif sys.platform.startswith("win"):
 else:
     _PDFTOTEXT = which("pdftotext")
     if _PDFTOTEXT is None:
-        print("Your platform is not supported (missing pdftotext). Sorry.")
+        print(_("Your platform is not supported (missing pdftotext). Sorry."))
         sys.exit(1)
 
 
@@ -46,7 +46,7 @@ elif sys.platform.startswith("win"):
 else:
     _PDFLATEX = which("pdflatex")
     if _PDFLATEX is None:
-        print("Your platform is not supported (missing pdflatex). Sorry.")
+        print(_("Your platform is not supported (missing pdflatex). Sorry."))
         sys.exit(1)
 
 
@@ -56,7 +56,7 @@ if sys.platform.startswith("linux"):
 elif sys.platform.startswith("win"):
     _CONFIG_DIR = os.path.join(os.environ['APPDATA'], 'dienstplanextraktor')
 else:
-    print("Your platform is not supported (no idea where to put the config). Sorry.")
+    print(_("Your platform is not supported (no idea where to put the config). Sorry."))
     sys.exit(1)
 
 
@@ -110,5 +110,5 @@ elif sys.platform.startswith("linux"):
                 tmp = file.read(1024)
             lpr.stdin.close()
 else:
-    print("Your platform is not supported (no idea how to print). Sorry.")
+    print(_("Your platform is not supported (no idea how to print). Sorry."))
     sys.exit(1)

@@ -1,6 +1,8 @@
 #!/usr/bin/python
-# -*- coding: UTF-8 -*-
+# encoding: utf-8
 
+import calendar
+import gettext
 import re
 import subprocess
 import sys
@@ -11,14 +13,16 @@ from calendar import monthrange
 from datetime import date
 from util import _PDFTOTEXT, _LAYOUT_PARAM
 
-_months = ("Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember")
-_weekdays = ("Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag")
+def translateAble_(string):return string
+_german_months = ("Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember")
+_months = calendar.month_name
+_weekdays = calendar.day_name
 _translationMatrix = {
-	"0": "Frei ",
-	"U": "Urlaub ",
-	"F": "Frühschicht ",
-	"S": "Spätschicht ",
-	"N": "Nachtschicht "
+	"0": translateAble_("Free "),
+	"U": translateAble_("Vacation "),
+	"F": translateAble_("Morning shift "),
+	"S": translateAble_("Evening shift "),
+	"N": translateAble_("Night shift ")
 }
 
 class PlausibilityError(RuntimeWarning):
@@ -36,11 +40,11 @@ class Dienstplan:
 			rawText = subprocess.check_output([_PDFTOTEXT, _LAYOUT_PARAM, "-nopgbrk", self.pdfFilename, "-"], universal_newlines=True)
 		except subprocess.CalledProcessError as e:
 			if e.returncode == 1:
-				print("There was an error opening the PDF file.")
+				print(_("There was an error opening the PDF file."))
 			elif e.returncode == 3:
-				print("There was an error related to PDF permissions.")
+				print(_("There was an error related to PDF permissions."))
 			else:
-				print("An unknown error occured.")
+				print(_("An unknown error occured."))
 			sys.exit(1)
 
 		dateInfo = re.search(r"(Januar|Februar|März|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember) +([0-9]{4})", rawText).group()
@@ -50,7 +54,7 @@ class Dienstplan:
 
 		rawText = list(filter(lambda x: x != "" and year not in x, rawText.split("\n")))
 
-		return _months.index(month) + 1, int(year), rawText
+		return _german_months.index(month) + 1, int(year), rawText
 
 	def _extractShifts(self):
 		month, year, lines = self._extractRawInfo()
@@ -71,7 +75,7 @@ class Dienstplan:
 
 					if len(curShifts) != expectedDays:
 						import warnings
-						warnings.warn("Number of shifts ({}) of {} does not match number of days ({}) in month ({})!".
+						warnings.warn(_("Number of shifts ({}) of {} does not match number of days ({}) in month ({})!").
 										format(len(curShifts), curWorkerName, expectedDays, month),
 										PlausibilityError)
 
@@ -89,7 +93,7 @@ class Dienstplan:
 	def _translateShiftName(self, origShiftName):
 		for length in range(1, len(origShiftName)+1):
 			if origShiftName[:length] in _translationMatrix:
-				return _translationMatrix[origShiftName[:length]] + origShiftName[length:]
+				return _(_translationMatrix[origShiftName[:length]]) + origShiftName[length:]
 
 		return origShiftName
 
@@ -101,7 +105,7 @@ class Dienstplan:
 			daysShifts = enumerate(map(self._translateShiftName, self.shifts[name]), 1)
 		else:
 			daysShifts = enumerate(self.shifts[name], 1)
-		return "Schichtplan für {} für {} {}\n".format(name, _months[self.month - 1], self.year) + \
+		return _("Roster of {} for {} {}\n").format(name, _months[self.month], self.year) + \
 				"\n".join(map(lambda x: _weekdays[date(self.year, self.month, x[0]).weekday()][0:3]
 											+ " " + (": ".join(map(str, x))), daysShifts))
 
@@ -119,14 +123,14 @@ class Dienstplan:
 \\usepackage[utf8]{{inputenc}}
 \\definecolor{{weekend}}{{rgb}}{{0.85,0.85,0.85}}
 \\begin{{document}}
-	\\title{{Schichtplan für {} für {} {} }}
+	\\title{{{} {} {} {} {} }}
 	\\date{{}}
 	\maketitle
 
 	\\begin{{table}}[h]
 		\centering
 		\\begin{{tabular}}{{ | r @{{\hspace{{1.8mm}}}} r l | }}
-			\\hline\n""".format(name, _months[self.month - 1], self.year)
+			\\hline\n""".format(_("Roster of"), name, _("for"), _months[self.month], self.year)
 
 		for day, shift in daysShifts:
 			weekday = date(self.year, self.month, day).weekday()
@@ -170,18 +174,17 @@ def main():
 
 	import argparse
 
-	parser = argparse.ArgumentParser(description='Extrahiere Schichtplaninfo')
+	parser = argparse.ArgumentParser(description=_('Extract roster info'))
 	commandGroup = parser.add_mutually_exclusive_group()
 	commandGroup.required = True
 	commandGroup.add_argument("--listWorkers", "-l", action="store_true",
-									help="Zeige alle Mitarbeiter an.")
+									help=_("Show all workers."))
 	commandGroup.add_argument("--workerInfo", "-w", metavar='W', type=str,
-		help="Zeige Info zu Mitarbeiter W")
-	parser.add_argument("--latex", action="store_true", help="Gib Latex code aus (nur -w)")
-	parser.add_argument("--translate", action="store_true", help="Übersetze Abkürzungen (nur -w)")
-	parser.add_argument("--calendar", action="store_true", help="Speichere in Google Calendar (nur -w)")
-	parser.add_argument("filename", help="Pfad zum Schichtplan PDF")
-
+		help=_("Show infos for worker W"))
+	parser.add_argument("--latex", action="store_true", help=_("Output latex code (only -w)"))
+	parser.add_argument("--translate", action="store_true", help=_("Unshorten abbreviations (only -w)"))
+	parser.add_argument("--calendar", action="store_true", help=_("Save to google calendar (only -w)"))
+	parser.add_argument("filename", help=_("Path to roster PDF"))
 
 	args = parser.parse_args()
 	plan = Dienstplan(args.filename)
@@ -198,13 +201,16 @@ def main():
 
 			if args.calendar:
 				for day, event in enumerate(plan.addToCalendar(args.workerInfo), 1):
-					print("Adding to google calendar... Event no {}".format(day), end="\r")
+					print(_("Adding to google calendar... Event no {}").format(day), end="\r")
 
-				print("Done")
+				print(_("Done"))
 
 		else:
-			print("Mitarbeiter unbekannt (nutze -l!)")
+			print(_("Unknown worker (use -l!)"))
 
 
 if __name__ == "__main__":
+	import locale
+	locale.setlocale(locale.LC_ALL, "")
+	gettext.install("rosterextractor", "lang")
 	main()
