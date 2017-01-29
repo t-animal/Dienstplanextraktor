@@ -140,15 +140,18 @@ else:
 Creates a function which sets up the locale and localization
 """
 if sys.platform.startswith("win"):
-	import locale, gettext
+    import locale, gettext
 
-	def setupLocalization():
-		lang, enc = locale.getdefaultlocale()
-		os.environ['LANG'] = lang
-		gettext.install("rosterextractor", _curDir + "/lang")
+    def setupLocalization():
+        lang, enc = locale.getdefaultlocale()
+        os.environ['LANG'] = lang
+        locale.setlocale(locale.LC_ALL, "")
+
+        gettext.install("rosterextractor", _curDir + "/lang")
 
 elif sys.platform.startswith("linux"):
-	import locale, gettext
+    import locale, gettext
 
-	def setupLocalization():
-		gettext.install("rosterextractor", _curDir + "/lang")
+    def setupLocalization():
+        locale.setlocale(locale.LC_ALL, "")
+        gettext.install("rosterextractor", _curDir + "/lang")
