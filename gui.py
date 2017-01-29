@@ -18,6 +18,7 @@ from util import _PDFLATEX, _CONFIG_DIR, printing, setupLocalization
 
 class Application(Frame):
 	def createPDF(self):
+		os.chdir(os.path.dirname(os.path.abspath(self.filenameVar.get())))
 		jobName = _("Roster-") + str(self.dienstplan.year) + "-" + str(self.dienstplan.month)
 		if self.pdfCreated:
 			printing(jobName+".pdf")
@@ -25,7 +26,6 @@ class Application(Frame):
 		if self.dienstplan and self.selectedName:
 			latex = self.dienstplan.getLatex(self.selectedName, self.translateVar.get() == 1)
 
-			curDir = os.path.dirname(os.path.abspath(__file__))
 			pdflatex = subprocess.Popen([_PDFLATEX, "-jobname="+jobName, "--"], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 			(stdout, stderr) = pdflatex.communicate(latex.encode('utf8'))
 			os.remove(jobName+".log")
