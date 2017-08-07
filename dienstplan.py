@@ -47,10 +47,9 @@ class Dienstplan:
 				print(_("An unknown error occured."))
 			sys.exit(1)
 
-		dateInfo = re.search(r"(Januar|Februar|März|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember) +([0-9]{4})", rawText).group()
-		dateInfo = dateInfo.split(" ")
-		month = dateInfo[0]
-		year = dateInfo[-1]
+		dateInfo = re.search(r"(Januar|Februar|März|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember) *([0-9]{4})", rawText).group()
+		month = dateInfo[:-4].strip()
+		year = dateInfo[-4:].strip()
 
 		rawText = list(filter(lambda x: x != "" and year not in x, rawText.split("\n")))
 
