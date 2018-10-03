@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2018-10-03 14:51+CEST\n"
+"POT-Creation-Date: 2018-10-03 16:12+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -14,6 +14,26 @@ msgstr ""
 "Content-Transfer-Encoding: ENCODING\n"
 "Generated-By: pygettext.py 1.5\n"
 
+
+#: dienstplan.py:21
+msgid "Free "
+msgstr ""
+
+#: dienstplan.py:22
+msgid "Vacation "
+msgstr ""
+
+#: dienstplan.py:23
+msgid "Morning shift "
+msgstr ""
+
+#: dienstplan.py:24
+msgid "Evening shift "
+msgstr ""
+
+#: dienstplan.py:25
+msgid "Night shift "
+msgstr ""
 
 #: dienstplan.py:44
 msgid "There was an error opening the PDF file."
@@ -44,47 +64,47 @@ msgstr ""
 msgid "for"
 msgstr ""
 
-#: dienstplan.py:188
+#: dienstplan.py:189
 msgid "Extract roster info"
 msgstr ""
 
-#: dienstplan.py:192
+#: dienstplan.py:193
 msgid "Show all workers."
 msgstr ""
 
-#: dienstplan.py:194
+#: dienstplan.py:195
 msgid "Show infos for worker W"
 msgstr ""
 
-#: dienstplan.py:195
+#: dienstplan.py:196
 msgid "Output latex code (only -w)"
 msgstr ""
 
-#: dienstplan.py:196
+#: dienstplan.py:197
 msgid "Unshorten abbreviations (only -w)"
 msgstr ""
 
-#: dienstplan.py:197
+#: dienstplan.py:198
 msgid "Save to google calendar (only -w)"
 msgstr ""
 
-#: dienstplan.py:198
+#: dienstplan.py:199
 msgid "Extract every second line (use, if desired name is cut off)"
 msgstr ""
 
-#: dienstplan.py:199
+#: dienstplan.py:200
 msgid "Path to roster PDF"
 msgstr ""
 
-#: dienstplan.py:216
+#: dienstplan.py:217
 msgid "Adding to google calendar... Event no {}"
 msgstr ""
 
-#: dienstplan.py:218
+#: dienstplan.py:219
 msgid "Done"
 msgstr ""
 
-#: dienstplan.py:221
+#: dienstplan.py:222
 msgid "Unknown worker (use -l!)"
 msgstr ""
 

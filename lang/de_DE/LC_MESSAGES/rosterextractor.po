@@ -5,17 +5,37 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2018-10-03 14:51+CEST\n"
-"PO-Revision-Date: 2018-10-03 14:52+0200\n"
+"POT-Creation-Date: 2018-10-03 16:12+CEST\n"
+"PO-Revision-Date: 2018-10-03 16:23+0200\n"
+"Last-Translator: \n"
 "Language-Team: \n"
+"Language: de_DE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
 "X-Generator: Poedit 2.1.1\n"
-"Last-Translator: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"Language: de_DE\n"
+
+#: dienstplan.py:21
+msgid "Free "
+msgstr "Frei "
+
+#: dienstplan.py:22
+msgid "Vacation "
+msgstr "Urlaub "
+
+#: dienstplan.py:23
+msgid "Morning shift "
+msgstr "Frühschicht "
+
+#: dienstplan.py:24
+msgid "Evening shift "
+msgstr "Spätschicht "
+
+#: dienstplan.py:25
+msgid "Night shift "
+msgstr "Nachtschicht "
 
 #: dienstplan.py:44
 msgid "There was an error opening the PDF file."
@@ -30,8 +50,11 @@ msgid "An unknown error occured."
 msgstr "Ein unbekannter Fehler ist aufgetreten."
 
 #: dienstplan.py:81
-msgid "Number of shifts ({}) of {} does not match number of days ({}) in month ({})!"
-msgstr "Anzahl der Schichten ({}) von {} stimmt nicht überein mit der Anzahl der Tage ({}) im Monat ({})!"
+msgid ""
+"Number of shifts ({}) of {} does not match number of days ({}) in month ({})!"
+msgstr ""
+"Anzahl der Schichten ({}) von {} stimmt nicht überein mit der Anzahl der "
+"Tage ({}) im Monat ({})!"
 
 #: dienstplan.py:114
 msgid "Roster of {} for {} {}\n"
@@ -45,47 +68,48 @@ msgstr "Dienstplan von"
 msgid "for"
 msgstr "für"
 
-#: dienstplan.py:188
+#: dienstplan.py:189
 msgid "Extract roster info"
 msgstr "Dienstplaninfo extrahieren"
 
-#: dienstplan.py:192
+#: dienstplan.py:193
 msgid "Show all workers."
 msgstr "Zeige alle Mitarbeiter."
 
-#: dienstplan.py:194
+#: dienstplan.py:195
 msgid "Show infos for worker W"
 msgstr "Zeige Informationen für Mitarbeiter W"
 
-#: dienstplan.py:195
+#: dienstplan.py:196
 msgid "Output latex code (only -w)"
 msgstr "Gib Latex code aus (nur -w)"
 
-#: dienstplan.py:196
+#: dienstplan.py:197
 msgid "Unshorten abbreviations (only -w)"
 msgstr "Expandiere Abkürzungen (nur -w)"
 
-#: dienstplan.py:197
+#: dienstplan.py:198
 msgid "Save to google calendar (only -w)"
 msgstr "Speichere in Google Kalender (nur -w)"
 
-#: dienstplan.py:198
-msgid "Extract every second line (use, if desired name is cut off)"
-msgstr "Extrahiere jede zweite Zeile (verwenden, wenn gewünschter Name abgeschnitten)"
-
 #: dienstplan.py:199
+msgid "Extract every second line (use, if desired name is cut off)"
+msgstr ""
+"Extrahiere jede zweite Zeile (verwenden, wenn gewünschter Name abgeschnitten)"
+
+#: dienstplan.py:200
 msgid "Path to roster PDF"
 msgstr "Pfad zum Dienstplan PDF"
 
-#: dienstplan.py:216
+#: dienstplan.py:217
 msgid "Adding to google calendar... Event no {}"
 msgstr "Füge zu Google calendar... Event #{}"
 
-#: dienstplan.py:218
+#: dienstplan.py:219
 msgid "Done"
 msgstr "Fertig"
 
-#: dienstplan.py:221
+#: dienstplan.py:222
 msgid "Unknown worker (use -l!)"
 msgstr "Unbekannter Mitarbeiter (nutze -l!)"
 
@@ -147,16 +171,23 @@ msgstr "Schichtplanextraktor"
 
 #: util.py:41
 msgid "Your platform is not supported (missing pdftotext). Sorry."
-msgstr "Diese Plattform wird nicht unerstützt (es fehlt pdftotext). Tschuldigung."
+msgstr ""
+"Diese Plattform wird nicht unerstützt (es fehlt pdftotext). Tschuldigung."
 
 #: util.py:59
 msgid "Your platform is not supported (missing pdflatex). Sorry."
-msgstr "Diese Plattform wird nicht unerstützt (es fehlt pdflatex). Tschuldigung."
+msgstr ""
+"Diese Plattform wird nicht unerstützt (es fehlt pdflatex). Tschuldigung."
 
 #: util.py:72
-msgid "Your platform is not supported (no idea where to put the config). Sorry."
-msgstr "Diese Plattform wird nicht unerstützt (keine Ahnung wo die config hin muss). Tschuldigung."
+msgid ""
+"Your platform is not supported (no idea where to put the config). Sorry."
+msgstr ""
+"Diese Plattform wird nicht unerstützt (keine Ahnung wo die config hin muss). "
+"Tschuldigung."
 
 #: util.py:135
 msgid "Your platform is not supported (no idea how to print). Sorry."
-msgstr "Diese Plattform wird nicht unerstützt (keine Ahnung wie man druckt). Tschuldigung."
+msgstr ""
+"Diese Plattform wird nicht unerstützt (keine Ahnung wie man druckt). "
+"Tschuldigung."
