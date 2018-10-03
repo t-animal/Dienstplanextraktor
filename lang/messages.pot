@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2017-01-19 16:33+CET\n"
+"POT-Creation-Date: 2018-10-03 14:51+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,153 +15,148 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 
 
-#: dienstplan.py:19
-msgid "Free "
-msgstr ""
-
-#: dienstplan.py:20
-msgid "Vacation "
-msgstr ""
-
-#: dienstplan.py:21
-msgid "Morning shift "
-msgstr ""
-
-#: dienstplan.py:22
-msgid "Evening shift "
-msgstr ""
-
-#: dienstplan.py:23
-msgid "Night shift "
-msgstr ""
-
-#: dienstplan.py:41
+#: dienstplan.py:44
 msgid "There was an error opening the PDF file."
 msgstr ""
 
-#: dienstplan.py:43
+#: dienstplan.py:46
 msgid "There was an error related to PDF permissions."
 msgstr ""
 
-#: dienstplan.py:45
+#: dienstplan.py:48
 msgid "An unknown error occured."
 msgstr ""
 
-#: dienstplan.py:76
+#: dienstplan.py:81
 msgid "Number of shifts ({}) of {} does not match number of days ({}) in month ({})!"
 msgstr ""
 
-#: dienstplan.py:106
+#: dienstplan.py:114
 msgid ""
 "Roster of {} for {} {}\n"
 msgstr ""
 
-#: dienstplan.py:131
+#: dienstplan.py:139
 msgid "Roster of"
 msgstr ""
 
-#: dienstplan.py:131
+#: dienstplan.py:139
 msgid "for"
 msgstr ""
 
-#: dienstplan.py:175
+#: dienstplan.py:188
 msgid "Extract roster info"
 msgstr ""
 
-#: dienstplan.py:179
+#: dienstplan.py:192
 msgid "Show all workers."
 msgstr ""
 
-#: dienstplan.py:181
+#: dienstplan.py:194
 msgid "Show infos for worker W"
 msgstr ""
 
-#: dienstplan.py:182
+#: dienstplan.py:195
 msgid "Output latex code (only -w)"
 msgstr ""
 
-#: dienstplan.py:183
+#: dienstplan.py:196
 msgid "Unshorten abbreviations (only -w)"
 msgstr ""
 
-#: dienstplan.py:184
+#: dienstplan.py:197
 msgid "Save to google calendar (only -w)"
 msgstr ""
 
-#: dienstplan.py:185
+#: dienstplan.py:198
+msgid "Extract every second line (use, if desired name is cut off)"
+msgstr ""
+
+#: dienstplan.py:199
 msgid "Path to roster PDF"
 msgstr ""
 
-#: dienstplan.py:202
+#: dienstplan.py:216
 msgid "Adding to google calendar... Event no {}"
 msgstr ""
 
-#: dienstplan.py:204 gui.py:46
+#: dienstplan.py:218
 msgid "Done"
 msgstr ""
 
-#: dienstplan.py:207
+#: dienstplan.py:221
 msgid "Unknown worker (use -l!)"
 msgstr ""
 
-#: gui.py:20
+#: gui.py:26
 msgid "Roster-"
 msgstr ""
 
-#: gui.py:34
+#: gui.py:39
 msgid "Print (default printer)"
 msgstr ""
 
-#: gui.py:43
-msgid ""
-"Adding to google calendar... Event no {}\n"
-msgstr ""
-
-#: gui.py:49
+#: gui.py:56
 msgid "All PDF files"
 msgstr ""
 
-#: gui.py:49
+#: gui.py:56
 msgid "Rosters"
 msgstr ""
 
-#: gui.py:89 gui.py:127
+#: gui.py:100
+msgid "Plausibility Error"
+msgstr ""
+
+#: gui.py:103 gui.py:145
 msgid "Create PDF"
 msgstr ""
 
-#: gui.py:122
+#: gui.py:140
 msgid "No file selected"
 msgstr ""
 
-#: gui.py:125
+#: gui.py:143
 msgid "Open File"
 msgstr ""
 
-#: gui.py:126
+#: gui.py:144
 msgid "Translate"
 msgstr ""
 
-#: gui.py:128
+#: gui.py:146
 msgid "Export to calendar"
 msgstr ""
 
-#: gui.py:151
+#: gui.py:150
+msgid "Extract first line"
+msgstr ""
+
+#: gui.py:152
+msgid "Extract second line"
+msgstr ""
+
+#: gui.py:179
+msgid "Unrecoverable error"
+msgstr ""
+
+#: gui.py:189
 msgid "Rosterextractor"
 msgstr ""
 
-#: util.py:34
+#: util.py:41
 msgid "Your platform is not supported (missing pdftotext). Sorry."
 msgstr ""
 
-#: util.py:49
+#: util.py:59
 msgid "Your platform is not supported (missing pdflatex). Sorry."
 msgstr ""
 
-#: util.py:59
+#: util.py:72
 msgid "Your platform is not supported (no idea where to put the config). Sorry."
 msgstr ""
 
-#: util.py:113
+#: util.py:135
 msgid "Your platform is not supported (no idea how to print). Sorry."
 msgstr ""
 
