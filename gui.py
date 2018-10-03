@@ -5,6 +5,7 @@ import gettext
 import json
 import os
 import subprocess
+import traceback
 import warnings
 
 from tkinter import *
@@ -15,6 +16,9 @@ from tkinter.ttk import *
 from datetime import date
 from dienstplan import Dienstplan
 from util import _PDFLATEX, _CONFIG_DIR, printing, setupLocalization
+
+FIRST_LINE = 0
+SECOND_LINE = 1
 
 class Application(Frame):
 	def createPDF(self):
@@ -47,8 +51,9 @@ class Application(Frame):
 			self.progressBar.pack_forget()
 			self.calendarButton.pack()
 
-	def selectFile(self):
-		filename = filedialog.askopenfilename(filetypes=[(_("Rosters"), "SPX*.pdf"), (_("All PDF files"), "*.pdf")])
+	def selectFile(self, filename=None):
+		if filename is None:
+			filename = filedialog.askopenfilename(filetypes=[(_("Rosters"), "SPX*.pdf"), (_("All PDF files"), "*.pdf")])
 		self.filenameVar.set(filename)
 
 		if self.selectedName is not None:
@@ -64,7 +69,7 @@ class Application(Frame):
 
 	def openFile(self, filename):
 		with warnings.catch_warnings(record=True) as warningsList:
-			self.dienstplan = Dienstplan(filename)
+			self.dienstplan = Dienstplan(filename, self.lineSelectVar.get() == SECOND_LINE)
 			self.nameList.insert(END, *sorted(self.dienstplan.shifts.keys()))
 
 			if self.lastSelectedName in self.dienstplan.shifts:
@@ -78,6 +83,13 @@ class Application(Frame):
 		w = event.widget
 		if w == self.nameList:
 			self.updateResults()
+
+	def switchLines(self):
+		if self.filenameVar.get() == None:
+			return
+
+		self.selectFile(self.filenameVar.get())
+
 
 	def updateResults(self):
 		if self.nameList.curselection():
@@ -134,6 +146,12 @@ class Application(Frame):
 		self.calendarButton = Button(calendarFrame, text=_("Export to calendar"), command=self.exportToCalendar)
 		self.progressBar = Progressbar(calendarFrame, maximum=30)
 
+		self.lineSelectVar = IntVar()
+		self.firstLineButton = Radiobutton(actionsFrame, text=_("Extract first line"), variable=self.lineSelectVar,
+			value=FIRST_LINE, command=self.switchLines)
+		self.secondLineButton = Radiobutton(actionsFrame, text=_("Extract second line"), variable=self.lineSelectVar,
+			value=SECOND_LINE, command=self.switchLines)
+
 		self.nameList = Listbox(self, width=30, height=39)
 		self.resultText = Text(self, width=40, height=40)
 		self.nameList.bind('<<ListboxSelect>>', self.selectName)
@@ -143,6 +161,8 @@ class Application(Frame):
 		self.progressBar.pack(fill=X, pady=6)
 		calendarFrame.pack()
 		self.translateButton.pack()
+		self.firstLineButton.pack()
+		self.secondLineButton.pack()
 		self.openButton.pack()
 		self.filenameLabel.pack()
 
@@ -154,6 +174,13 @@ class Application(Frame):
 		self.resultText.grid(row=1, column=1, sticky=(N, S, E, W))
 		self.nameList.columnconfigure(1, weight=1)
 		self.resultText.columnconfigure(1, weight=1)
+
+	def reportError(self, *args):
+		messagebox.showerror(_("Unrecoverable error"), 
+			_("Sorry, the application encountered an unrecoverable error and will not function"
+			  "any longer. If you want to help get rid of this problem, send the "
+			  "following lines to tilman-dienstplanextraktor [at] t-animal [dot] de\n\n" + str(traceback.format_exception(*args))))
+		#TODO: richtiges fenster mit kopierbarem stacktrace
 
 	def __init__(self, master=None):
 		Frame.__init__(self, master)
@@ -167,6 +194,9 @@ class Application(Frame):
 		self.dienstplan = None
 		self.pdfCreated = False
 
+		if not sys.platform.lower().startswith('win'):
+			Style().theme_use("clam")
+
 		self._loadConfig()
 
 if __name__ == "__main__":
@@ -178,9 +208,10 @@ if __name__ == "__main__":
 
 	root = Tk()
 	app = Application(master=root)
+	Tk.report_callback_exception = app.reportError
 
 	if len(sys.argv) > 1:
-		app.openFile(sys.argv[1])
+		app.selectFile(sys.argv[1])
 
 	app.mainloop()
 	sys.exit(0)
