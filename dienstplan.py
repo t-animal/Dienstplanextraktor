@@ -8,7 +8,7 @@ import subprocess
 import sys
 import os
 
-from calendarConnection import insertEvent
+from calendarConnection import insertEvent, clearAllEvents
 from calendar import monthrange
 from datetime import date
 from util import _PDFTOTEXT, _LAYOUT_PARAM, setupLocalization
@@ -179,6 +179,7 @@ class Dienstplan:
 		else:
 			daysShifts = enumerate(self.shifts[name], 1)
 		for day, shift in daysShifts:
+			clearAllEvents(self.year, self.month, day)
 			yield insertEvent(self.year, self.month, day, shift)
 
 def main():

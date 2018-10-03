@@ -53,13 +53,7 @@ def get_credentials():
         print('Storing credentials to ' + credential_path)
     return credentials
 
-def insertEvent(year, month, day, name, calendar="Dienstplan"):
-    credentials = get_credentials()
-    http = credentials.authorize(httplib2.Http())
-    service = discovery.build('calendar', 'v3', http=http)
-
-    now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-
+def _getCalendarId(service, calendar):
     calendar_id = None
     page_token = None
     while True:
@@ -71,11 +65,35 @@ def insertEvent(year, month, day, name, calendar="Dienstplan"):
         page_token = calendar_list.get('nextPageToken')
         if not page_token:
             break
+    return calendar_id
+
+def clearAllEvents(year, month, day, calendar="test"):
+    credentials = get_credentials()
+    http = credentials.authorize(httplib2.Http())
+    service = discovery.build('calendar', 'v3', http=http)
+
+    calendar_id = _getCalendarId(service, calendar)
+    page_token = None
 
     if calendar_id == None:
-        print("Kalender nicht gefunden.")
+        raise Exception("Kalender nicht gefunden.")
         sys.exit(1)
 
+    endyear, endmonth, endday = getEndDate(year, month, day)
+    timeMin = "{}-{}-{}T00:00:00+00:00".format(year, month, day)
+    timeMax = "{}-{}-{}T00:00:00+00:00".format(endyear, endmonth, endday)
+
+    while True:
+      events = service.events().list(calendarId=calendar_id,
+        pageToken=page_token,
+        timeMin=timeMin, timeMax=timeMax).execute()
+      for event in events['items']:
+        service.events().delete(calendarId=calendar_id, eventId=event['id']).execute()
+      page_token = events.get('nextPageToken')
+      if not page_token:
+        break
+
+def getEndDate(year, month, day):
     endyear = year
     endmonth = month
     endday = day + 1
@@ -89,6 +107,22 @@ def insertEvent(year, month, day, name, calendar="Dienstplan"):
         else:
             endmonth += 1
 
+    return (endyear, endmonth, endday)
+
+def insertEvent(year, month, day, name, calendar="test"):
+    credentials = get_credentials()
+    http = credentials.authorize(httplib2.Http())
+    service = discovery.build('calendar', 'v3', http=http)
+
+    now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
+
+    calendar_id = _getCalendarId(service, calendar)
+
+    if calendar_id == None:
+        raise Exception("Kalender nicht gefunden.")
+        sys.exit(1)
+
+    endyear, endmonth, endday = getEndDate(year, month, day)
 
     event = {
         "summary": name,
