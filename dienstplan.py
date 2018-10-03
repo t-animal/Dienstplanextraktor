@@ -89,8 +89,8 @@ class Dienstplan:
 
 			tokens = [token for token in line.split(" ") if token != ""]
 			curWorkerName = tokens[0] + " " + curWorkerName
-			if not len(tokens[1:]) == 0:
-				#extract shift information only, if information is present
+			if not len(tokens[1:]) == 0 and len(tokens[1:]) > len(curShifts):
+				#extract shift information only if information is present. the line with more information is probably the right one
 				curShifts = tokens[1:]
 
 		return month, year, shifts
