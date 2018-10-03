@@ -68,16 +68,13 @@ class Application(Frame):
 			self.openFile(filename)
 
 	def openFile(self, filename):
-		with warnings.catch_warnings(record=True) as warningsList:
+		with warnings.catch_warnings(record=True):
 			self.dienstplan = Dienstplan(filename, self.lineSelectVar.get() == SECOND_LINE)
 			self.nameList.insert(END, *sorted(self.dienstplan.shifts.keys()))
 
 			if self.lastSelectedName in self.dienstplan.shifts:
 				self.nameList.selection_set(sorted(self.dienstplan.shifts.keys()).index(self.lastSelectedName))
 				self.updateResults()
-
-			for warning in warningsList:
-				messagebox.showwarning(warning.category.__name__,  warning.category.__name__ + ": " + str(warning.message))
 
 	def selectName(self, event):
 		w = event.widget
@@ -98,6 +95,9 @@ class Application(Frame):
 
 			self.resultText.delete(1.0, END)
 			self.resultText.insert(END, self.dienstplan.getText(self.selectedName, self.translateVar.get() == 1))
+
+			if self.dienstplan.hasWarning(self.selectedName):
+				messagebox.showwarning(_("Plausibility Error"), self.dienstplan.getWarning(self.selectedName))
 
 			self.pdfCreated = False
 			self.pdfButton.config(text=_("Create PDF"))

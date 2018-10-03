@@ -33,6 +33,7 @@ class Dienstplan:
 
 	def __init__(self, pdfFilename, useSecondLine=False):
 		self.pdfFilename = pdfFilename
+		self.warnings = {}
 		self.month, self.year, self.shifts = self._extractShifts(useSecondLine)
 
 	def _extractRawInfo(self):
@@ -63,6 +64,7 @@ class Dienstplan:
 		shifts = {}
 		curWorkerName = ""
 		curShifts = []
+		self.warnings = {}
 
 		lineOffset = 1 if useSecondLine else 0
 
@@ -76,9 +78,10 @@ class Dienstplan:
 
 					if len(curShifts) != expectedDays:
 						import warnings
-						warnings.warn(_("Number of shifts ({}) of {} does not match number of days ({}) in month ({})!").
-										format(len(curShifts), curWorkerName, expectedDays, month),
-										PlausibilityError)
+						warningText = _("Number of shifts ({}) of {} does not match number of days ({}) in month ({})!").\
+										format(len(curShifts), curWorkerName, expectedDays, month)
+						self.warnings[curWorkerName.strip(" ")] = PlausibilityError(warningText)
+						warnings.warn(warningText, PlausibilityError)
 
 				curWorkerName = ""
 				curShifts = []
@@ -161,6 +164,11 @@ class Dienstplan:
 		else:
 			return self.shifts[name]
 
+	def hasWarning(self, name):
+		return name in self.warnings
+
+	def getWarning(self, name):
+		return self.warnings[name]
 
 	def addToCalendar(self, name, translate=False):
 		if name not in self.shifts:
