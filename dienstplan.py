@@ -31,9 +31,9 @@ class PlausibilityError(RuntimeWarning):
 
 class Dienstplan:
 
-	def __init__(self, pdfFilename):
+	def __init__(self, pdfFilename, useSecondLine=False):
 		self.pdfFilename = pdfFilename
-		self.month, self.year, self.shifts = self._extractShifts()
+		self.month, self.year, self.shifts = self._extractShifts(useSecondLine)
 
 	def _extractRawInfo(self):
 		try:
@@ -55,7 +55,7 @@ class Dienstplan:
 
 		return _german_months.index(month) + 1, int(year), rawText
 
-	def _extractShifts(self):
+	def _extractShifts(self, useSecondLine=False):
 		month, year, lines = self._extractRawInfo()
 
 		expectedDays = monthrange(year, month)[1]
@@ -64,8 +64,10 @@ class Dienstplan:
 		curWorkerName = ""
 		curShifts = []
 
+		lineOffset = 1 if useSecondLine else 0
+
 		for lineno, line in enumerate(lines):
-			if lineno % 2 == 0:
+			if lineno % 2 == lineOffset:
 				if curWorkerName.strip(" ") in shifts:
 					break
 
@@ -185,10 +187,11 @@ def main():
 	parser.add_argument("--latex", action="store_true", help=_("Output latex code (only -w)"))
 	parser.add_argument("--translate", action="store_true", help=_("Unshorten abbreviations (only -w)"))
 	parser.add_argument("--calendar", action="store_true", help=_("Save to google calendar (only -w)"))
+	parser.add_argument("--secondLine", action="store_true", help=_("Extract every second line (use, if desired name is cut off)"))
 	parser.add_argument("filename", help=_("Path to roster PDF"))
 
 	args = parser.parse_args()
-	plan = Dienstplan(args.filename)
+	plan = Dienstplan(args.filename, args.secondLine)
 
 	if args.listWorkers:
 		print("\n".join(plan.shifts.keys()))
